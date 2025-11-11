@@ -1,6 +1,6 @@
 name: Criar Release Package (Manual)
 
-# Este é o "gatilho" que cria o botão na aba "Actions"
+# Este é o "gat_ilho" que cria o botão na aba "Actions"
 on:
   workflow_dispatch:
     inputs:
@@ -9,7 +9,9 @@ on:
         required: true
         default: 'v1.0.0'
 
-permissions:  
+#  A CORREÇÃO ESTÁ AQUI 
+# Damos permissão para o robô "escrever" (criar) o release
+permissions:
   contents: write
 
 jobs:
@@ -24,22 +26,15 @@ jobs:
         uses: actions/checkout@v4
 
       # 2. O robô cria o arquivo .zip
-      #    Note que estamos compactando APENAS o README.md
-      #    Isso é perfeito para o seu teste inicial.
       - name: Compactar conteúdo (só o README.md)
         run: zip -r release-package.zip README.md
 
       # 3. O robô publica o Release na página de "Releases"
-      #    e anexa o arquivo .zip
       - name: Criar Release e Anexar o .zip
         uses: softprops/action-gh-release@v1
         with:
-          # O arquivo que queremos anexar
           files: release-package.zip
-          # O nome da tag/release (vem do campo que você preencheu)
           tag_name: ${{ github.event.inputs.version }}
-          # O nome do release
           name: "Release ${{ github.event.inputs.version }}"
-          # O "token" é a permissão automática para o robô fazer isso
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
