@@ -1,0 +1,42 @@
+name: Criar Release Package (Manual)
+
+# Este é o "gatilho" que cria o botão na aba "Actions"
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versão do release (ex: v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+jobs:
+  build-and-release:
+    # A "máquina" que o robô vai usar
+    runs-on: ubuntu-latest
+    
+    # Os passos que o robô vai seguir
+    steps:
+      # 1. O robô "baixa" o código do seu repositório para a máquina
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # 2. O robô cria o arquivo .zip
+      #    Note que estamos compactando APENAS o README.md
+      #    Isso é perfeito para o seu teste inicial.
+      - name: Compactar conteúdo (só o README.md)
+        run: zip -r release-package.zip README.md
+
+      # 3. O robô publica o Release na página de "Releases"
+      #    e anexa o arquivo .zip
+      - name: Criar Release e Anexar o .zip
+        uses: softprops/action-gh-release@v1
+        with:
+          # O arquivo que queremos anexar
+          files: release-package.zip
+          # O nome da tag/release (vem do campo que você preencheu)
+          tag_name: ${{ github.event.inputs.version }}
+          # O nome do release
+          name: "Release ${{ github.event.inputs.version }}"
+          # O "token" é a permissão automática para o robô fazer isso
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
